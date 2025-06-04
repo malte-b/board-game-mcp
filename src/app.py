@@ -1,23 +1,13 @@
 import gradio as gr
+from utils.bgg import search
 
-def letter_counter(word, letter):
-    """Count the occurrences of a specific letter in a word.
-    
-    Args:
-        word: The word or phrase to analyze
-        letter: The letter to count occurrences of
-        
-    Returns:
-        The number of times the letter appears in the word
-    """
-    return word.lower().count(letter.lower())
 
-demo = gr.Interface(
-    fn=letter_counter,
-    inputs=["text", "text"],
-    outputs="number",
-    title="Letter Counter",
-    description="Count how many times a letter appears in a word"
+search_bgg = gr.Interface(
+    fn=search,
+    inputs=["text"],
+    outputs="json",
+    title="Board game geek search",
+    description="Search for the board games from Board Game Geek"
 )
 
-demo.launch(mcp_server=True)
+search_bgg.launch(mcp_server=True)
