@@ -24,7 +24,7 @@ def search(query):
         ]
     """
 
-    response = requests.get(f"{BGG_BASE_URL}/search?query={query}")
+    response = requests.get(f"{BGG_BASE_URL}/search?query={query}&exact=0&type=boardgame")
     root = ET.fromstring(response.content)
 
     results = []
