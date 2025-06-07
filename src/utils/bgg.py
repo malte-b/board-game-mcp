@@ -101,6 +101,7 @@ def get_hot_games():
             - 'title' (str): The official title of the game.
             - 'rank' (str): The current hotness rank of the game on BGG.
             - 'year' (str): The year the game was published (or 'Unknown' if not available).
+            - 'url' (str): URL to the similar game's page on BoardGameGeek.
     """
     response = requests.get(f"{BGG_BASE_URL}/hot?type=boardgame")
     root = ET.fromstring(response.content)
@@ -111,7 +112,8 @@ def get_hot_games():
         rank = item.get("rank")
         title = item.find("name").get("value")
         year = item.find("yearpublished").get("value") if item.find("yearpublished") is not None else "Unknown"
-        results.append({"id": game_id, "title": title, "rank": rank, "year": year})
+        url = f"https://boardgamegeek.com/boardgame/{game_id}"
+        results.append({"id": game_id, "title": title, "rank": rank, "year": year, "url": url})
 
     return results
 
