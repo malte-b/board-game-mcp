@@ -1,1 +1,1 @@
-"gradio[mcp]"
+gradio[mcp]
