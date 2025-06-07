@@ -115,3 +115,47 @@ def get_hot_games():
 
     return results
 
+def get_similar_games(game_id, limit=5):
+    """
+    Get a list of games similar to the specified game.
+
+    Args:
+        game_id (str): The unique BGG ID of the game to find similar games for.
+        limit (int): The number of BGG IDs to retrieve.
+
+    Returns:
+        List[dict]: A list of dictionaries, each representing a similar game with the following fields:
+            - 'id' (str): The unique BGG ID of the similar game.
+            - 'title' (str): The official title of the similar game.
+            - 'year' (str): The year the similar game was published (or 'Unknown' if not available).
+            - 'description' (str): A brief description of the similar game.
+            - 'url' (str): URL to the similar game's page on BoardGameGeek.
+    """
+    recommended_games = []
+    api_url = f"https://recommend.games/api/games/{game_id}/similar.json"
+    try: 
+        response = requests.get(api_url)
+        response.raise_for_status()
+        api_data = response.json()
+        results = api_data['results']
+        for game_data in results[:limit]:
+            bgg_id = game_data.get('bgg_id')
+            title = game_data.get('name')
+            year = game_data.get('year')
+            description = game_data.get('description', 'No description available')
+            url = game_data.get('url')
+
+            if bgg_id and title:
+                formatted_game = {
+                    'id': str(bgg_id),
+                    'title': str(title),
+                    'year': str(year) if year is not None else 'Unknown',
+                    'description': str(description),
+                    'url': str(url),
+                }
+                recommended_games.append(formatted_game)
+
+        return recommended_games
+    except requests.RequestException as e:
+        print(f"Error fetching similar games: {e}")
+        return []
