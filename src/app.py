@@ -1,6 +1,6 @@
 import gradio as gr
 from utils.bgg import get_game_details, get_hot_games, search
-
+from utils.recommend import recommend_similar
 
 search_bgg = gr.Interface(
     fn=search,
@@ -26,9 +26,18 @@ hot_games = gr.Interface(
     description="Get the list of the top 50 trending games today on Board Game Geek"
 )
 
-bgg_tools = gr.TabbedInterface(
-    [search_bgg, game_details, hot_games],
-    ["Search", "Details", "Hot Games"]
+recommend_games = gr.Interface(
+    fn=recommend_similar,
+    inputs=['text'],
+    outputs=['json'],
+    title='Recommended games',
+    description='Get the list of recommended game'
 )
+
+bgg_tools = gr.TabbedInterface(
+    [search_bgg, game_details, hot_games, recommend_games],
+    ["Search", "Details", "Hot Games", "Recommend games"]
+)
+
 
 bgg_tools.launch(mcp_server=True)
