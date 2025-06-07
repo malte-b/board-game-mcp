@@ -128,6 +128,8 @@ def get_similar_games(game_id, limit=5):
             - 'id' (str): The unique BGG ID of the similar game.
             - 'title' (str): The official title of the similar game.
             - 'year' (str): The year the similar game was published (or 'Unknown' if not available).
+            - 'description' (str): A brief description of the similar game.
+            - 'url' (str): URL to the similar game's page on BoardGameGeek.
     """
     recommended_games = []
     api_url = f"https://recommend.games/api/games/{game_id}/similar.json"
@@ -140,12 +142,16 @@ def get_similar_games(game_id, limit=5):
             bgg_id = game_data.get('bgg_id')
             title = game_data.get('name')
             year = game_data.get('year')
+            description = game_data.get('description', 'No description available')
+            url = game_data.get('url')
 
             if bgg_id and title:
                 formatted_game = {
                     'id': str(bgg_id),
                     'title': str(title),
-                    'year': str(year) if year is not None else 'Unknown'
+                    'year': str(year) if year is not None else 'Unknown',
+                    'description': str(description),
+                    'url': str(url),
                 }
                 recommended_games.append(formatted_game)
 
