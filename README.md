@@ -9,7 +9,7 @@ suggested_storage: small
 license: mit
 pinned: false
 app_file: src/app.py
-short_description: A server that helps you find the right board game for you using the BoardGameGeek API.
+short_description: MCP server to find your next board game with the BGG API
 tags:
   - mcp-server-track
 ---
