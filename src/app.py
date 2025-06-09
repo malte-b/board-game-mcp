@@ -1,5 +1,5 @@
 import gradio as gr
-from utils.bgg import get_game_details, get_hot_games, get_similar_games, search
+from utils.bgg import get_game_details, get_hot_games, get_similar_games_v2, search
 
 
 search_bgg = gr.Interface(
@@ -27,7 +27,7 @@ hot_games = gr.Interface(
 )
 
 recommend_games = gr.Interface(
-    fn=get_similar_games,
+    fn=get_similar_games_v2,
     inputs=["text"],
     outputs="json",
     title="Recommend Games",

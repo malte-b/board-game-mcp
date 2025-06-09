@@ -119,7 +119,7 @@ def get_hot_games():
 
 def get_similar_games(game_id, limit=5):
     """
-    Get a list of games similar to the specified game.
+    Get a list of games similar to the specified game from the recommend games API.
 
     Args:
         game_id (str): The unique BGG ID of the game to find similar games for.
@@ -140,6 +140,13 @@ def get_similar_games(game_id, limit=5):
         response.raise_for_status()
         api_data = response.json()
         results = api_data['results']
+        # Filter out all games with less than 30 votes (num_votes)
+        results = [game for game in results if game.get('num_votes', 0) >= 30]
+        # Filter out all games with a rec_rating of 0
+        results = [game for game in results if game.get('rec_rating', 0) > 0]
+        # Sort results by rec_rating, bayes_rating and avg_rating
+        results.sort(key=lambda x: (x.get('rec_rating', 0), x.get('bayes_rating', 0), x.get('avg_rating', 0)), reverse=True)
+
         for game_data in results[:limit]:
             bgg_id = game_data.get('bgg_id')
             title = game_data.get('name')
@@ -160,4 +167,71 @@ def get_similar_games(game_id, limit=5):
         return recommended_games
     except requests.RequestException as e:
         print(f"Error fetching similar games: {e}")
+        return []
+
+def get_similar_games_v2(game_id, limit=5, start=0, end=25, noblock=False):
+    """
+    Retrieves a list of games similar to a specified board game from the RecommendGames API.
+
+    Args:
+        game_id (str): The unique BGG ID of the game to find similar games for.
+        limit (int): The number of similar games to retrieve.
+        start (int, optional): The starting index for the desired range of results. Defaults to 0.
+        end (int, optional): The ending index for the desired range of results. Defaults to 25.
+        noblock (bool, optional): If True, the request will not timeout. Defaults to False, which sets a 10-second timeout.
+
+    Returns:
+        List[dict]: A list of dictionaries, each representing a similar game with the following fields:
+            - 'id' (str): The unique BGG ID of the similar game.
+            - 'title' (str): The official title of the similar game.
+            - 'year' (str): The year the similar game was published (or 'Unknown' if not available).
+            - 'description' (str): A brief description of the similar game.
+            - 'url' (str): URL to the similar game's page on BoardGameGeek.
+        Returns an empty list if there are any errors during the API request or data processing.
+    """
+
+    api_url = f"https://recommend.games/api/games/{game_id}/similar.json"
+    params = {
+        'num_votes__gte': 30,
+        'ordering': '-rec_rating,-bayes_rating,-avg_rating'
+    }
+
+    all_games = []
+
+    try:
+        for i in range(start+1, end+1):
+            params['page'] = i
+            response = requests.get(api_url, params=params, timeout=None if noblock else 10)
+            response.raise_for_status()
+            api_data = response.json()
+
+            games = api_data.get('results', [])
+            if not games:
+                break
+
+            processed_games = [
+                {
+                    'id': str(game.get('bgg_id', '')),
+                    'title': str(game.get('name', '')),
+                    'year': str(game.get('year', 'Unknown')),
+                    'description': str(game.get('description', 'No description available')),
+                    'url': str(game.get('url', '')),
+                }
+                for game in games
+                if game.get('num_votes', 0) >= 30 and game.get('rec_rating', 0) > 0.001
+            ]
+
+            all_games.extend(processed_games)
+
+            # Check if we have enough results
+            if len(all_games) >= end or not api_data.get('next'):
+                break
+
+        return all_games[:limit] if limit > 0 else all_games
+
+    except requests.RequestException as e:
+        print(f"Error fetching similar games: {e}")
+        return []
+    except ValueError as e:
+        print(f"Error: {e}")
         return []
