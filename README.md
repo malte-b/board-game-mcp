@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/malte-b-board-game-mcp-badge.png)](https://mseep.ai/app/malte-b-board-game-mcp)
+
 ---
 title: Board Game MCP
 emoji: 🎲
